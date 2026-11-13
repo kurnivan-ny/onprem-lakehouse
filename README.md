@@ -318,10 +318,26 @@ docs/                       ARCHITECTURE.md, queries.sql, assets/ (diagrams)
 
 ## Development and CI
 
+You need **Python 3.11+** and **Java 17**; the Spark transform tests start a local Spark.
+
 ```bash
-pip install -r requirements-dev.txt   # Spark tests need Java 17
+pip install -r requirements-dev.txt
 make lint test config                 # ruff, pytest, validate compose for all profiles
 ```
+
+**No Python 3.11 or Java 17 on your machine?** Run the same checks in a container. Use the `-bookworm` image,
+because the default `python:3.11-slim` is based on Debian trixie, which doesn't ship OpenJDK 17.
+
+```bash
+docker run --rm -v "$PWD":/src -w /src python:3.11-slim-bookworm bash -c '
+  apt-get update -qq && apt-get install -y -qq openjdk-17-jre-headless procps >/dev/null &&
+  pip install -q -r requirements-dev.txt &&
+  ruff check --no-cache . && pytest -q -p no:cacheprovider'
+```
+
+**Dependency pins.** PySpark 3.5 needs `numpy<2`, and `pyarrow>=18` won't load with `numpy<2`. That is why
+`requirements-dev.txt` and `libs/requirements.txt` pin `pyarrow<18` and `pandas<2.3`. Keep these pins until
+you move to Spark 4.
 
 GitHub Actions runs the same checks on every push and PR, and builds the custom images on `main`. CI only checks and builds code; no data or credentials leave your machines.
 
