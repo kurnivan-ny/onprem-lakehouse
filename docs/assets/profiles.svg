@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="344" viewBox="0 0 1000 344" role="img" aria-labelledby="title desc">
+  <title id="title">Docker Compose profiles</title>
+  <desc id="desc">The core platform (RustFS, platform-db, Lakekeeper) always runs. Add batch, event, serving, monitoring and catalog profiles as needed; make up-core starts batch, event and serving.</desc>
+  <style>
+.bg{fill:#ffffff;stroke:#d0d7de}
+.box{fill:#f6f8fa;stroke:#d0d7de;stroke-width:1.2}
+.card{fill:#ffffff;stroke:#d0d7de;stroke-width:1}
+.zone{fill:none;stroke:#afb8c1;stroke-width:1;stroke-dasharray:5 4}
+.b{stroke:#0969da}.e{stroke:#8250df}.r{stroke:#cf222e}.g{stroke:#1a7f37}.o{stroke:#bc4c00}.n{stroke:#6e7781}
+.t{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;fill:#1f2328}
+.tl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;fill:#1f2328}
+.s{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:11.5px;fill:#59636e}
+.m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#1f2328}
+.mm{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#59636e}
+.h{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;fill:#59636e}
+.ln{fill:none;stroke:#8c959f;stroke-width:1.5}
+.lr{fill:none;stroke:#cf222e;stroke-width:1.5;stroke-dasharray:5 3}
+.ah{fill:#8c959f}.ar{fill:#cf222e}
+.tb{fill:#0969da}.te{fill:#8250df}.tr{fill:#cf222e}.tg{fill:#1a7f37}.to{fill:#bc4c00}.tn{fill:#6e7781}
+.fb{fill:#0969da}.fe{fill:#8250df}.fr{fill:#cf222e}.fg{fill:#1a7f37}.fo{fill:#bc4c00}.fn{fill:#6e7781}
+.pb{fill:#b4690e;fill-opacity:.12;stroke:#b4690e}.xb{fill:#8f5209}
+.ps{fill:#6e7781;fill-opacity:.12;stroke:#6e7781}.xs{fill:#57606a}
+.pg{fill:#bf8700;fill-opacity:.14;stroke:#bf8700}.xg{fill:#7d5700}
+.pr{fill:#cf222e;fill-opacity:.10;stroke:#cf222e}
+.dot{fill:#ffffff;stroke:#8c959f;stroke-width:2}
+.dotc{fill:#1a7f37;stroke:#1a7f37;stroke-width:2}
+.lbl{fill:#ffffff}
+@media (prefers-color-scheme:dark){
+.bg{fill:#0d1117;stroke:#30363d}
+.box{fill:#161b22;stroke:#30363d}
+.card{fill:#0d1117;stroke:#30363d}
+.zone{stroke:#484f58}
+.b{stroke:#4493f8}.e{stroke:#ab7df8}.r{stroke:#f85149}.g{stroke:#3fb950}.o{stroke:#f0883e}.n{stroke:#9198a1}
+.t,.tl,.m{fill:#e6edf3}
+.s,.mm,.h{fill:#9198a1}
+.ln{stroke:#656c76}.ah{fill:#656c76}
+.lr{stroke:#f85149}.ar{fill:#f85149}
+.tb{fill:#4493f8}.te{fill:#ab7df8}.tr{fill:#f85149}.tg{fill:#3fb950}.to{fill:#f0883e}.tn{fill:#9198a1}
+.fb{fill:#4493f8}.fe{fill:#ab7df8}.fr{fill:#f85149}.fg{fill:#3fb950}.fo{fill:#f0883e}.fn{fill:#9198a1}
+.pb{fill:#d18f52;stroke:#d18f52}.xb{fill:#e0a370}
+.ps{fill:#9198a1;stroke:#9198a1}.xs{fill:#c9d1d9}
+.pg{fill:#e3b341;stroke:#e3b341}.xg{fill:#e3b341}
+.pr{fill:#f85149;stroke:#f85149}
+.dot{fill:#0d1117;stroke:#656c76}
+.dotc{fill:#3fb950;stroke:#3fb950}
+.lbl{fill:#0d1117}
+}</style>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ar"/></marker></defs>
+  <rect x="0.5" y="0.5" width="999" height="343" rx="12" class="bg"/>
+  <path d="M24,40 V30 H976 V40" class="ln"/>
+  <rect x="397.0" y="19" width="206" height="22" rx="4" class="lbl"/>
+  <text x="500.0" y="34" class="m" text-anchor="middle">make up-all  ·  ≈ 14–16 GB</text>
+  <path d="M24,72 V62 H566 V72" class="ln"/>
+  <rect x="199.0" y="51" width="192" height="22" rx="4" class="lbl"/>
+  <text x="295.0" y="66" class="m" text-anchor="middle">make up-core  ·  ≈ 10 GB</text>
+  <rect x="24" y="84" width="180" height="164" rx="8" class="box b"/>
+  <text x="38" y="108" class="h tb" text-anchor="start">BATCH</text>
+  <text x="38" y="132" class="m" text-anchor="start">source-db</text>
+  <text x="38" y="149" class="m" text-anchor="start">spark-connect</text>
+  <text x="38" y="166" class="m" text-anchor="start">dagster</text>
+  <text x="38" y="236" class="mm" text-anchor="start">make up-batch</text>
+  <text x="190" y="108" class="s" text-anchor="end">≈ 4 GB</text>
+  <rect x="217" y="84" width="180" height="164" rx="8" class="box e"/>
+  <text x="231" y="108" class="h te" text-anchor="start">EVENT</text>
+  <text x="231" y="132" class="m" text-anchor="start">kafka + kafka-ui</text>
+  <text x="231" y="149" class="m" text-anchor="start">flink jobmanager</text>
+  <text x="231" y="166" class="m" text-anchor="start">flink taskmanager</text>
+  <text x="231" y="183" class="m" text-anchor="start">flink-sql-runner</text>
+  <text x="231" y="200" class="m" text-anchor="start">event-producer</text>
+  <text x="231" y="236" class="mm" text-anchor="start">make up-event</text>
+  <text x="383" y="108" class="s" text-anchor="end">≈ 5 GB</text>
+  <rect x="410" y="84" width="180" height="164" rx="8" class="box g"/>
+  <text x="424" y="108" class="h tg" text-anchor="start">SERVING</text>
+  <text x="424" y="132" class="m" text-anchor="start">trino</text>
+  <text x="424" y="149" class="m" text-anchor="start">superset</text>
+  <text x="424" y="236" class="mm" text-anchor="start">make up-serving</text>
+  <rect x="603" y="84" width="180" height="164" rx="8" class="box o"/>
+  <text x="617" y="108" class="h to" text-anchor="start">MONITORING</text>
+  <text x="617" y="132" class="m" text-anchor="start">prometheus</text>
+  <text x="617" y="149" class="m" text-anchor="start">grafana</text>
+  <text x="617" y="166" class="m" text-anchor="start">kafka-exporter</text>
+  <text x="617" y="236" class="mm" text-anchor="start">make up-monitoring</text>
+  <rect x="796" y="84" width="180" height="164" rx="8" class="box n"/>
+  <text x="810" y="108" class="h tn" text-anchor="start">CATALOG</text>
+  <text x="810" y="132" class="m" text-anchor="start">openmetadata</text>
+  <text x="810" y="149" class="m" text-anchor="start">opensearch</text>
+  <text x="810" y="236" class="mm" text-anchor="start">make up-catalog</text>
+  <text x="962" y="108" class="s" text-anchor="end">heavy</text>
+  <rect x="24" y="262" width="952" height="62" rx="8" class="box"/>
+  <text x="44" y="288" class="h" text-anchor="start">CORE · ALWAYS ON</text>
+  <text x="44" y="308" class="m" text-anchor="start">rustfs (S3 storage) · platform-db (Postgres 17) · lakekeeper (Iceberg catalog) · platform-init (bucket + warehouse)</text>
+</svg>

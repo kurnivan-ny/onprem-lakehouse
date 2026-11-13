@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-labelledby="title desc">
+  <title id="title">How an Apache Iceberg table works</title>
+  <desc id="desc">The Lakekeeper catalog points to the current metadata.json file. Metadata lists snapshots; each snapshot has a manifest list, manifests and Parquet data files in RustFS. Every write creates a new snapshot and atomically moves the pointer, which enables time travel.</desc>
+  <style>
+.bg{fill:#ffffff;stroke:#d0d7de}
+.box{fill:#f6f8fa;stroke:#d0d7de;stroke-width:1.2}
+.card{fill:#ffffff;stroke:#d0d7de;stroke-width:1}
+.zone{fill:none;stroke:#afb8c1;stroke-width:1;stroke-dasharray:5 4}
+.b{stroke:#0969da}.e{stroke:#8250df}.r{stroke:#cf222e}.g{stroke:#1a7f37}.o{stroke:#bc4c00}.n{stroke:#6e7781}
+.t{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;fill:#1f2328}
+.tl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;fill:#1f2328}
+.s{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:11.5px;fill:#59636e}
+.m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#1f2328}
+.mm{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#59636e}
+.h{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;fill:#59636e}
+.ln{fill:none;stroke:#8c959f;stroke-width:1.5}
+.lr{fill:none;stroke:#cf222e;stroke-width:1.5;stroke-dasharray:5 3}
+.ah{fill:#8c959f}.ar{fill:#cf222e}
+.tb{fill:#0969da}.te{fill:#8250df}.tr{fill:#cf222e}.tg{fill:#1a7f37}.to{fill:#bc4c00}.tn{fill:#6e7781}
+.fb{fill:#0969da}.fe{fill:#8250df}.fr{fill:#cf222e}.fg{fill:#1a7f37}.fo{fill:#bc4c00}.fn{fill:#6e7781}
+.pb{fill:#b4690e;fill-opacity:.12;stroke:#b4690e}.xb{fill:#8f5209}
+.ps{fill:#6e7781;fill-opacity:.12;stroke:#6e7781}.xs{fill:#57606a}
+.pg{fill:#bf8700;fill-opacity:.14;stroke:#bf8700}.xg{fill:#7d5700}
+.pr{fill:#cf222e;fill-opacity:.10;stroke:#cf222e}
+.dot{fill:#ffffff;stroke:#8c959f;stroke-width:2}
+.dotc{fill:#1a7f37;stroke:#1a7f37;stroke-width:2}
+.lbl{fill:#ffffff}
+@media (prefers-color-scheme:dark){
+.bg{fill:#0d1117;stroke:#30363d}
+.box{fill:#161b22;stroke:#30363d}
+.card{fill:#0d1117;stroke:#30363d}
+.zone{stroke:#484f58}
+.b{stroke:#4493f8}.e{stroke:#ab7df8}.r{stroke:#f85149}.g{stroke:#3fb950}.o{stroke:#f0883e}.n{stroke:#9198a1}
+.t,.tl,.m{fill:#e6edf3}
+.s,.mm,.h{fill:#9198a1}
+.ln{stroke:#656c76}.ah{fill:#656c76}
+.lr{stroke:#f85149}.ar{fill:#f85149}
+.tb{fill:#4493f8}.te{fill:#ab7df8}.tr{fill:#f85149}.tg{fill:#3fb950}.to{fill:#f0883e}.tn{fill:#9198a1}
+.fb{fill:#4493f8}.fe{fill:#ab7df8}.fr{fill:#f85149}.fg{fill:#3fb950}.fo{fill:#f0883e}.fn{fill:#9198a1}
+.pb{fill:#d18f52;stroke:#d18f52}.xb{fill:#e0a370}
+.ps{fill:#9198a1;stroke:#9198a1}.xs{fill:#c9d1d9}
+.pg{fill:#e3b341;stroke:#e3b341}.xg{fill:#e3b341}
+.pr{fill:#f85149;stroke:#f85149}
+.dot{fill:#0d1117;stroke:#656c76}
+.dotc{fill:#3fb950;stroke:#3fb950}
+.lbl{fill:#0d1117}
+}</style>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ar"/></marker></defs>
+  <rect x="0.5" y="0.5" width="999" height="519" rx="12" class="bg"/>
+  <text x="24" y="34" class="h" text-anchor="start">ANATOMY OF ONE TABLE</text>
+  <rect x="14" y="50" width="196" height="200" rx="10" class="zone"/>
+  <text x="112" y="238" class="s" text-anchor="middle">Lakekeeper + platform-db</text>
+  <rect x="224" y="50" width="762" height="200" rx="10" class="zone"/>
+  <text x="605" y="238" class="mm" text-anchor="middle">RustFS  ·  s3://lakehouse/warehouse/silver/orders_events/</text>
+  <rect x="30" y="112" width="164" height="72" rx="8" class="box"/>
+  <text x="112.0" y="136.0" class="t" text-anchor="middle">Catalog</text>
+  <text x="112.0" y="153.0" class="mm" text-anchor="middle">silver.orders_events</text>
+  <text x="112.0" y="169.0" class="mm" text-anchor="middle">→ current metadata</text>
+  <path d="M194,148 L244,148" class="ln" marker-end="url(#a)"/>
+  <rect x="244" y="112" width="160" height="72" rx="8" class="box"/>
+  <text x="324.0" y="136.0" class="t" text-anchor="middle">metadata.json</text>
+  <text x="324.0" y="153.0" class="s" text-anchor="middle">schema · partitions</text>
+  <text x="324.0" y="169.0" class="s" text-anchor="middle">list of snapshots</text>
+  <path d="M404,148 L444,148" class="ln" marker-end="url(#a)"/>
+  <rect x="444" y="112" width="150" height="72" rx="8" class="box"/>
+  <text x="519.0" y="136.0" class="t" text-anchor="middle">manifest list</text>
+  <text x="519.0" y="153.0" class="s" text-anchor="middle">one per snapshot</text>
+  <text x="519.0" y="169.0" class="s" text-anchor="middle">(= the snapshot)</text>
+  <path d="M594,148 C614,148 614,95 634,95" class="ln" marker-end="url(#a)"/>
+  <rect x="634" y="70" width="140" height="50" rx="8" class="box"/>
+  <text x="704.0" y="91.0" class="t" text-anchor="middle">manifest</text>
+  <text x="704.0" y="108.0" class="s" text-anchor="middle">file paths + min/max</text>
+  <path d="M594,148 C614,148 614,181 634,181" class="ln" marker-end="url(#a)"/>
+  <rect x="634" y="156" width="140" height="50" rx="8" class="box"/>
+  <text x="704.0" y="177.0" class="t" text-anchor="middle">manifest</text>
+  <text x="704.0" y="194.0" class="s" text-anchor="middle">file paths + min/max</text>
+  <path d="M774,95 C799,95 799,77 824,77" class="ln" marker-end="url(#a)"/>
+  <rect x="824" y="62" width="146" height="30" rx="6" class="card"/>
+  <text x="897" y="81" class="m" text-anchor="middle">part-00000.parquet</text>
+  <path d="M774,95 C799,95 799,119 824,119" class="ln" marker-end="url(#a)"/>
+  <rect x="824" y="104" width="146" height="30" rx="6" class="card"/>
+  <text x="897" y="123" class="m" text-anchor="middle">part-00001.parquet</text>
+  <path d="M774,181 C799,181 799,161 824,161" class="ln" marker-end="url(#a)"/>
+  <rect x="824" y="146" width="146" height="30" rx="6" class="card"/>
+  <text x="897" y="165" class="m" text-anchor="middle">part-00002.parquet</text>
+  <path d="M774,181 C799,181 799,203 824,203" class="ln" marker-end="url(#a)"/>
+  <rect x="824" y="188" width="146" height="30" rx="6" class="card"/>
+  <text x="897" y="207" class="m" text-anchor="middle">part-00003.parquet</text>
+  <text x="24" y="292" class="h" text-anchor="start">EVERY WRITE = A NEW SNAPSHOT  (nothing is changed in place)</text>
+  <path d="M70,360 L930,360" class="ln"/>
+  <circle cx="140" cy="360" r="8" class="dot"/>
+  <text x="140" y="336" class="t" text-anchor="middle">snapshot 1</text>
+  <text x="140" y="388" class="t" text-anchor="middle">append</text>
+  <text x="140" y="405" class="s" text-anchor="middle">bronze → silver load</text>
+  <circle cx="370" cy="360" r="8" class="dot"/>
+  <text x="370" y="336" class="t" text-anchor="middle">snapshot 2</text>
+  <text x="370" y="388" class="t" text-anchor="middle">MERGE</text>
+  <text x="370" y="405" class="s" text-anchor="middle">changed rows rewritten</text>
+  <circle cx="600" cy="360" r="8" class="dot"/>
+  <text x="600" y="336" class="t" text-anchor="middle">snapshot 3</text>
+  <text x="600" y="388" class="t" text-anchor="middle">compaction</text>
+  <text x="600" y="405" class="s" text-anchor="middle">small files merged</text>
+  <circle cx="830" cy="360" r="8" class="dotc"/>
+  <text x="830" y="336" class="t" text-anchor="middle">snapshot 4</text>
+  <text x="830" y="388" class="t tg" text-anchor="middle">current</text>
+  <text x="830" y="405" class="s" text-anchor="middle">what queries read</text>
+  <rect x="24" y="430" width="306" height="72" rx="8" class="box"/>
+  <text x="40" y="454" class="t" text-anchor="start">Atomic commits</text>
+  <text x="40" y="472" class="s" text-anchor="start">write new files, then swap the pointer:</text>
+  <text x="40" y="489" class="s" text-anchor="start">readers never see half a write</text>
+  <rect x="346" y="430" width="306" height="72" rx="8" class="box"/>
+  <text x="362" y="454" class="t" text-anchor="start">Time travel</text>
+  <text x="362" y="472" class="s" text-anchor="start">old snapshots stay readable:</text>
+  <text x="362" y="489" class="mm" text-anchor="start">FOR VERSION AS OF &lt;snapshot_id&gt;</text>
+  <rect x="668" y="430" width="306" height="72" rx="8" class="box"/>
+  <text x="684" y="454" class="t" text-anchor="start">Housekeeping</text>
+  <text x="684" y="472" class="s" text-anchor="start">Dagster 03:00 runs compaction +</text>
+  <text x="684" y="489" class="mm" text-anchor="start">expire_snapshots on every table</text>
+</svg>
