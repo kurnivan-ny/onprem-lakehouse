@@ -1,3 +1,6 @@
 # Spark Connect thin client - talks to the spark-connect server (or Sail) over gRPC; no JVM needed here.
+# PySpark 3.5 needs numpy<2, pandas<2.3; pyarrow>=18 refuses to load with numpy<2.
 pyspark[connect]==3.5.8
 numpy<2
+pandas>=2.0,<2.3
+pyarrow>=14,<18

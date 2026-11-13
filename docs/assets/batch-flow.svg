@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="300" viewBox="0 0 1000 300" role="img" aria-labelledby="title desc">
+  <title id="title">Batch pipeline: incremental and idempotent</title>
+  <desc id="desc">Dagster runs sales_daily at 01:00. Bronze pulls only rows with updated_at newer than the watermark, silver keeps the latest row per key, runs data-quality checks and MERGEs, gold rebuilds marts atomically.</desc>
+  <style>
+.bg{fill:#ffffff;stroke:#d0d7de}
+.box{fill:#f6f8fa;stroke:#d0d7de;stroke-width:1.2}
+.card{fill:#ffffff;stroke:#d0d7de;stroke-width:1}
+.zone{fill:none;stroke:#afb8c1;stroke-width:1;stroke-dasharray:5 4}
+.b{stroke:#0969da}.e{stroke:#8250df}.r{stroke:#cf222e}.g{stroke:#1a7f37}.o{stroke:#bc4c00}.n{stroke:#6e7781}
+.t{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;fill:#1f2328}
+.tl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;fill:#1f2328}
+.s{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:11.5px;fill:#59636e}
+.m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#1f2328}
+.mm{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#59636e}
+.h{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;fill:#59636e}
+.ln{fill:none;stroke:#8c959f;stroke-width:1.5}
+.lr{fill:none;stroke:#cf222e;stroke-width:1.5;stroke-dasharray:5 3}
+.ah{fill:#8c959f}.ar{fill:#cf222e}
+.tb{fill:#0969da}.te{fill:#8250df}.tr{fill:#cf222e}.tg{fill:#1a7f37}.to{fill:#bc4c00}.tn{fill:#6e7781}
+.fb{fill:#0969da}.fe{fill:#8250df}.fr{fill:#cf222e}.fg{fill:#1a7f37}.fo{fill:#bc4c00}.fn{fill:#6e7781}
+.pb{fill:#b4690e;fill-opacity:.12;stroke:#b4690e}.xb{fill:#8f5209}
+.ps{fill:#6e7781;fill-opacity:.12;stroke:#6e7781}.xs{fill:#57606a}
+.pg{fill:#bf8700;fill-opacity:.14;stroke:#bf8700}.xg{fill:#7d5700}
+.pr{fill:#cf222e;fill-opacity:.10;stroke:#cf222e}
+.dot{fill:#ffffff;stroke:#8c959f;stroke-width:2}
+.dotc{fill:#1a7f37;stroke:#1a7f37;stroke-width:2}
+.lbl{fill:#ffffff}
+@media (prefers-color-scheme:dark){
+.bg{fill:#0d1117;stroke:#30363d}
+.box{fill:#161b22;stroke:#30363d}
+.card{fill:#0d1117;stroke:#30363d}
+.zone{stroke:#484f58}
+.b{stroke:#4493f8}.e{stroke:#ab7df8}.r{stroke:#f85149}.g{stroke:#3fb950}.o{stroke:#f0883e}.n{stroke:#9198a1}
+.t,.tl,.m{fill:#e6edf3}
+.s,.mm,.h{fill:#9198a1}
+.ln{stroke:#656c76}.ah{fill:#656c76}
+.lr{stroke:#f85149}.ar{fill:#f85149}
+.tb{fill:#4493f8}.te{fill:#ab7df8}.tr{fill:#f85149}.tg{fill:#3fb950}.to{fill:#f0883e}.tn{fill:#9198a1}
+.fb{fill:#4493f8}.fe{fill:#ab7df8}.fr{fill:#f85149}.fg{fill:#3fb950}.fo{fill:#f0883e}.fn{fill:#9198a1}
+.pb{fill:#d18f52;stroke:#d18f52}.xb{fill:#e0a370}
+.ps{fill:#9198a1;stroke:#9198a1}.xs{fill:#c9d1d9}
+.pg{fill:#e3b341;stroke:#e3b341}.xg{fill:#e3b341}
+.pr{fill:#f85149;stroke:#f85149}
+.dot{fill:#0d1117;stroke:#656c76}
+.dotc{fill:#3fb950;stroke:#3fb950}
+.lbl{fill:#0d1117}
+}</style>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ar"/></marker></defs>
+  <rect x="0.5" y="0.5" width="999" height="299" rx="12" class="bg"/>
+  <rect x="24" y="20" width="952" height="44" rx="8" class="box b"/>
+  <text x="44" y="47" class="t" text-anchor="start">Dagster  ·  job sales_daily  ·  every day 01:00 WIB  ·  sales_bronze → sales_silver → sales_gold</text>
+  <rect x="24" y="86" width="202" height="150" rx="8" class="box n"/>
+  <rect x="38" y="98" width="74" height="22" rx="11.0" class="ps"/>
+  <text x="75.0" y="113.0" class="h xs" text-anchor="middle">SOURCE</text>
+  <text x="38" y="144" class="t" text-anchor="start">Postgres sales.*</text>
+  <text x="38" y="168" class="s" text-anchor="start">customers, products,</text>
+  <text x="38" y="187" class="s" text-anchor="start">orders, order_items</text>
+  <text x="38" y="206" class="mm" text-anchor="start">every row has updated_at</text>
+  <path d="M226,161 L274,161" class="ln" marker-end="url(#a)"/>
+  <rect x="274" y="86" width="202" height="150" rx="8" class="box b"/>
+  <rect x="288" y="98" width="74" height="22" rx="11.0" class="pb"/>
+  <text x="325.0" y="113.0" class="h xb" text-anchor="middle">BRONZE</text>
+  <text x="288" y="144" class="t" text-anchor="start">Incremental extract</text>
+  <text x="288" y="168" class="mm" text-anchor="start">read max(updated_at)</text>
+  <text x="288" y="187" class="s" text-anchor="start">pull only newer rows</text>
+  <text x="288" y="206" class="mm" text-anchor="start">append + _batch_id</text>
+  <path d="M476,161 L524,161" class="ln" marker-end="url(#a)"/>
+  <rect x="524" y="86" width="202" height="150" rx="8" class="box b"/>
+  <rect x="538" y="98" width="74" height="22" rx="11.0" class="ps"/>
+  <text x="575.0" y="113.0" class="h xs" text-anchor="middle">SILVER</text>
+  <text x="538" y="144" class="t" text-anchor="start">Clean + MERGE</text>
+  <text x="538" y="168" class="s" text-anchor="start">latest row per key</text>
+  <text x="538" y="187" class="s" text-anchor="start">DQ gate stops bad runs</text>
+  <text x="538" y="206" class="s" text-anchor="start">MERGE INTO silver</text>
+  <path d="M726,161 L774,161" class="ln" marker-end="url(#a)"/>
+  <rect x="774" y="86" width="202" height="150" rx="8" class="box b"/>
+  <rect x="788" y="98" width="74" height="22" rx="11.0" class="pg"/>
+  <text x="825.0" y="113.0" class="h xg" text-anchor="middle">GOLD</text>
+  <text x="788" y="144" class="t" text-anchor="start">Rebuild marts</text>
+  <text x="788" y="168" class="mm" text-anchor="start">sales_daily</text>
+  <text x="788" y="187" class="mm" text-anchor="start">sales_customer_ltv</text>
+  <text x="788" y="206" class="mm" text-anchor="start">CREATE OR REPLACE</text>
+  <text x="500" y="270" class="s" text-anchor="middle">Re-run safe: the watermark skips rows already loaded, and MERGE updates rows instead of duplicating them.</text>
+</svg>

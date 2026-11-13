@@ -6,23 +6,13 @@ only for code + CI.
 
 ## 1. End-to-end flow
 
-```
- SOURCES             INGEST / PROCESS                       STORAGE (Iceberg on RustFS)              SERVE
-                                                             catalog: Lakekeeper (REST)
- ┌───────────┐  JDBC, incremental   ┌──────────────────┐    ┌─────────┐   ┌─────────┐   ┌────────┐
- │ Postgres  │ ───────────────────► │ Spark 3.5        │ ─► │ bronze  │ ─►│ silver  │ ─►│ gold   │──┐
- │ (sales.*) │  updated_at > wm     │ (Spark Connect)  │    │ append  │   │ MERGE   │   │ REPLACE│  │
- └───────────┘                      │ ← Dagster daily  │    └─────────┘   └─────────┘   └────────┘  │  ┌───────┐   ┌──────────┐
-                                    └──────────────────┘                                            ├─►│ Trino │──►│ Superset │
- ┌───────────┐  orders.events       ┌──────────────────┐    ┌─────────┐   ┌─────────┐   ┌────────┐  │  └───────┘   └──────────┘
- │ Order app │ ───► Kafka 3.9 ────► │ Flink 1.20 SQL   │ ─► │ bronze  │ ─►│ silver  │ ─►│ gold   │──┘
- │ (producer)│      (KRaft)         │ checkpoint 30 s  │    │ append  │   │ upsert  │   │ window │
- └───────────┘          ▲           └────────┬─────────┘    └─────────┘   └─────────┘   │ upsert │
-                        └── orders.dlq ◄─────┘ invalid events + reason                  └────────┘
+<p align="center">
+  <img src="assets/architecture.svg" alt="End-to-end flow: Postgres → Spark and Order app → Kafka → Flink into Iceberg bronze/silver/gold on RustFS + Lakekeeper; Trino and Superset serve it; invalid events go to orders.dlq" width="100%">
+</p>
 
- Cross-cutting:  Dagster (schedules, maintenance, Flink health) · Prometheus + Grafana · OpenMetadata
-                 (catalog, lineage) · JSON-Schema contract · GitHub Actions (lint, test, build)
-```
+Close-ups: [Iceberg internals](assets/iceberg.svg) · [batch flow](assets/batch-flow.svg) ·
+[event flow](assets/event-flow.svg) · [compose profiles](assets/profiles.svg). The README explains each piece
+in plain language.
 
 ## 2. Components
 

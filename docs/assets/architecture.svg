@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="540" viewBox="0 0 1100 540" role="img" aria-labelledby="title desc">
+  <title id="title">onprem-lakehouse architecture</title>
+  <desc id="desc">Postgres is loaded by Spark (batch) and order events flow through Kafka and Flink (event) into one Apache Iceberg lakehouse with bronze, silver and gold layers on RustFS with the Lakekeeper catalog. Trino queries it and Superset draws dashboards. Invalid events go to a Kafka dead-letter topic.</desc>
+  <style>
+.bg{fill:#ffffff;stroke:#d0d7de}
+.box{fill:#f6f8fa;stroke:#d0d7de;stroke-width:1.2}
+.card{fill:#ffffff;stroke:#d0d7de;stroke-width:1}
+.zone{fill:none;stroke:#afb8c1;stroke-width:1;stroke-dasharray:5 4}
+.b{stroke:#0969da}.e{stroke:#8250df}.r{stroke:#cf222e}.g{stroke:#1a7f37}.o{stroke:#bc4c00}.n{stroke:#6e7781}
+.t{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;fill:#1f2328}
+.tl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;fill:#1f2328}
+.s{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:11.5px;fill:#59636e}
+.m{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#1f2328}
+.mm{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#59636e}
+.h{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;fill:#59636e}
+.ln{fill:none;stroke:#8c959f;stroke-width:1.5}
+.lr{fill:none;stroke:#cf222e;stroke-width:1.5;stroke-dasharray:5 3}
+.ah{fill:#8c959f}.ar{fill:#cf222e}
+.tb{fill:#0969da}.te{fill:#8250df}.tr{fill:#cf222e}.tg{fill:#1a7f37}.to{fill:#bc4c00}.tn{fill:#6e7781}
+.fb{fill:#0969da}.fe{fill:#8250df}.fr{fill:#cf222e}.fg{fill:#1a7f37}.fo{fill:#bc4c00}.fn{fill:#6e7781}
+.pb{fill:#b4690e;fill-opacity:.12;stroke:#b4690e}.xb{fill:#8f5209}
+.ps{fill:#6e7781;fill-opacity:.12;stroke:#6e7781}.xs{fill:#57606a}
+.pg{fill:#bf8700;fill-opacity:.14;stroke:#bf8700}.xg{fill:#7d5700}
+.pr{fill:#cf222e;fill-opacity:.10;stroke:#cf222e}
+.dot{fill:#ffffff;stroke:#8c959f;stroke-width:2}
+.dotc{fill:#1a7f37;stroke:#1a7f37;stroke-width:2}
+.lbl{fill:#ffffff}
+@media (prefers-color-scheme:dark){
+.bg{fill:#0d1117;stroke:#30363d}
+.box{fill:#161b22;stroke:#30363d}
+.card{fill:#0d1117;stroke:#30363d}
+.zone{stroke:#484f58}
+.b{stroke:#4493f8}.e{stroke:#ab7df8}.r{stroke:#f85149}.g{stroke:#3fb950}.o{stroke:#f0883e}.n{stroke:#9198a1}
+.t,.tl,.m{fill:#e6edf3}
+.s,.mm,.h{fill:#9198a1}
+.ln{stroke:#656c76}.ah{fill:#656c76}
+.lr{stroke:#f85149}.ar{fill:#f85149}
+.tb{fill:#4493f8}.te{fill:#ab7df8}.tr{fill:#f85149}.tg{fill:#3fb950}.to{fill:#f0883e}.tn{fill:#9198a1}
+.fb{fill:#4493f8}.fe{fill:#ab7df8}.fr{fill:#f85149}.fg{fill:#3fb950}.fo{fill:#f0883e}.fn{fill:#9198a1}
+.pb{fill:#d18f52;stroke:#d18f52}.xb{fill:#e0a370}
+.ps{fill:#9198a1;stroke:#9198a1}.xs{fill:#c9d1d9}
+.pg{fill:#e3b341;stroke:#e3b341}.xg{fill:#e3b341}
+.pr{fill:#f85149;stroke:#f85149}
+.dot{fill:#0d1117;stroke:#656c76}
+.dotc{fill:#3fb950;stroke:#3fb950}
+.lbl{fill:#0d1117}
+}</style>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ar"/></marker></defs>
+  <rect x="0.5" y="0.5" width="1099" height="539" rx="12" class="bg"/>
+  <text x="94" y="40" class="h" text-anchor="middle">SOURCES</text>
+  <text x="265" y="40" class="h" text-anchor="middle">TRANSPORT</text>
+  <text x="446" y="40" class="h" text-anchor="middle">COMPUTE</text>
+  <text x="742" y="40" class="h" text-anchor="middle">LAKEHOUSE · APACHE ICEBERG</text>
+  <text x="1014" y="40" class="h" text-anchor="middle">SERVE</text>
+  <text x="24" y="120" class="h tb" text-anchor="start">BATCH · DAILY 01:00</text>
+  <text x="24" y="250" class="h te" text-anchor="start">EVENT · CONTINUOUS</text>
+  <rect x="560" y="58" width="364" height="362" rx="8" class="card"/>
+  <rect x="24" y="130" width="140" height="60" rx="8" class="box b"/>
+  <text x="94.0" y="156.0" class="t" text-anchor="middle">Postgres 16</text>
+  <text x="94.0" y="173.0" class="s" text-anchor="middle">sales.* (OLTP)</text>
+  <path d="M164,160 L366,160" class="ln" marker-end="url(#a)"/>
+  <text x="265" y="152" class="s" text-anchor="middle">JDBC, incremental</text>
+  <text x="265" y="177" class="mm" text-anchor="middle">updated_at &gt; watermark</text>
+  <rect x="366" y="130" width="160" height="60" rx="8" class="box b"/>
+  <text x="446.0" y="156.0" class="t" text-anchor="middle">Spark 3.5</text>
+  <text x="446.0" y="173.0" class="s" text-anchor="middle">via Spark Connect</text>
+  <path d="M526,160 L574,160" class="ln" marker-end="url(#a)"/>
+  <rect x="24" y="260" width="140" height="60" rx="8" class="box e"/>
+  <text x="94.0" y="286.0" class="t" text-anchor="middle">Order app</text>
+  <text x="94.0" y="303.0" class="s" text-anchor="middle">event producer</text>
+  <path d="M164,290 L200,290" class="ln" marker-end="url(#a)"/>
+  <rect x="200" y="260" width="130" height="60" rx="8" class="box e"/>
+  <text x="265.0" y="286.0" class="t" text-anchor="middle">Kafka 3.9</text>
+  <text x="265.0" y="303.0" class="mm" text-anchor="middle">orders.events</text>
+  <path d="M330,290 L366,290" class="ln" marker-end="url(#a)"/>
+  <rect x="366" y="260" width="160" height="60" rx="8" class="box e"/>
+  <text x="446.0" y="286.0" class="t" text-anchor="middle">Flink 1.20 SQL</text>
+  <text x="446.0" y="303.0" class="s" text-anchor="middle">checkpoint every 30 s</text>
+  <path d="M526,290 L574,290" class="ln" marker-end="url(#a)"/>
+  <path d="M446,320 L446,395 L330,395" class="lr" marker-end="url(#ar)"/>
+  <rect x="200" y="370" width="130" height="50" rx="8" class="box r"/>
+  <text x="265.0" y="391.0" class="t" text-anchor="middle">orders.dlq</text>
+  <text x="265.0" y="408.0" class="s" text-anchor="middle">invalid + reason</text>
+  <rect x="574" y="74" width="100" height="22" rx="11.0" class="pb"/>
+  <text x="624.0" y="89.0" class="h xb" text-anchor="middle">BRONZE</text>
+  <rect x="692" y="74" width="100" height="22" rx="11.0" class="ps"/>
+  <text x="742.0" y="89.0" class="h xs" text-anchor="middle">SILVER</text>
+  <rect x="810" y="74" width="100" height="22" rx="11.0" class="pg"/>
+  <text x="860.0" y="89.0" class="h xg" text-anchor="middle">GOLD</text>
+  <rect x="574" y="130" width="100" height="60" rx="8" class="box b"/>
+  <text x="624.0" y="156.0" class="t" text-anchor="middle">append</text>
+  <text x="624.0" y="173.0" class="s" text-anchor="middle">raw + audit</text>
+  <rect x="692" y="130" width="100" height="60" rx="8" class="box b"/>
+  <text x="742.0" y="156.0" class="t" text-anchor="middle">MERGE</text>
+  <text x="742.0" y="173.0" class="s" text-anchor="middle">after DQ gate</text>
+  <rect x="810" y="130" width="100" height="60" rx="8" class="box b"/>
+  <text x="860.0" y="156.0" class="t" text-anchor="middle">rebuild</text>
+  <text x="860.0" y="173.0" class="s" text-anchor="middle">daily marts</text>
+  <rect x="574" y="260" width="100" height="60" rx="8" class="box e"/>
+  <text x="624.0" y="286.0" class="t" text-anchor="middle">append</text>
+  <text x="624.0" y="303.0" class="s" text-anchor="middle">raw text</text>
+  <rect x="692" y="260" width="100" height="60" rx="8" class="box e"/>
+  <text x="742.0" y="286.0" class="t" text-anchor="middle">upsert</text>
+  <text x="742.0" y="303.0" class="s" text-anchor="middle">dedup by id</text>
+  <rect x="810" y="260" width="100" height="60" rx="8" class="box e"/>
+  <text x="860.0" y="286.0" class="t" text-anchor="middle">upsert</text>
+  <text x="860.0" y="303.0" class="s" text-anchor="middle">1-min windows</text>
+  <path d="M674,160 L692,160" class="ln" marker-end="url(#a)"/>
+  <path d="M792,160 L810,160" class="ln" marker-end="url(#a)"/>
+  <path d="M674,290 L692,290" class="ln" marker-end="url(#a)"/>
+  <path d="M792,290 L810,290" class="ln" marker-end="url(#a)"/>
+  <text x="742" y="229" class="mm" text-anchor="middle">lakehouse.&lt;layer&gt;.&lt;table&gt;</text>
+  <rect x="574" y="352" width="162" height="52" rx="8" class="box"/>
+  <text x="655.0" y="374.0" class="t" text-anchor="middle">RustFS</text>
+  <text x="655.0" y="391.0" class="s" text-anchor="middle">S3 object storage</text>
+  <rect x="748" y="352" width="162" height="52" rx="8" class="box"/>
+  <text x="829.0" y="374.0" class="t" text-anchor="middle">Lakekeeper</text>
+  <text x="829.0" y="391.0" class="s" text-anchor="middle">Iceberg REST catalog</text>
+  <path d="M924,225 L948,225" class="ln" marker-end="url(#a)"/>
+  <rect x="948" y="195" width="132" height="60" rx="8" class="box"/>
+  <text x="1014.0" y="221.0" class="t" text-anchor="middle">Trino</text>
+  <text x="1014.0" y="238.0" class="s" text-anchor="middle">SQL on every table</text>
+  <path d="M1014,255 L1014,290" class="ln" marker-end="url(#a)"/>
+  <rect x="948" y="290" width="132" height="60" rx="8" class="box"/>
+  <text x="1014.0" y="316.0" class="t" text-anchor="middle">Superset 5</text>
+  <text x="1014.0" y="333.0" class="s" text-anchor="middle">dashboards</text>
+  <text x="24" y="452" class="h" text-anchor="start">CROSS-CUTTING</text>
+  <rect x="24" y="464" width="202" height="56" rx="8" class="box"/>
+  <text x="38" y="487" class="t" text-anchor="start">Dagster</text>
+  <text x="38" y="505" class="s" text-anchor="start">schedules + maintenance</text>
+  <rect x="236" y="464" width="202" height="56" rx="8" class="box"/>
+  <text x="250" y="487" class="t" text-anchor="start">Prometheus + Grafana</text>
+  <text x="250" y="505" class="s" text-anchor="start">Kafka lag · checkpoints</text>
+  <rect x="448" y="464" width="202" height="56" rx="8" class="box"/>
+  <text x="462" y="487" class="t" text-anchor="start">OpenMetadata</text>
+  <text x="462" y="505" class="s" text-anchor="start">catalog · lineage</text>
+  <rect x="660" y="464" width="202" height="56" rx="8" class="box"/>
+  <text x="674" y="487" class="t" text-anchor="start">JSON Schema contract</text>
+  <text x="674" y="505" class="mm" text-anchor="start">contracts/orders.v1.json</text>
+  <rect x="872" y="464" width="202" height="56" rx="8" class="box"/>
+  <text x="886" y="487" class="t" text-anchor="start">GitHub Actions</text>
+  <text x="886" y="505" class="s" text-anchor="start">lint · test · build</text>
+</svg>
