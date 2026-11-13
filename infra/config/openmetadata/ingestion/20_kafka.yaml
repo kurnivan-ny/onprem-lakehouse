@@ -1,0 +1,20 @@
+# Kafka topics (orders.events, orders.dlq).
+source:
+  type: kafka
+  serviceName: onprem_kafka
+  serviceConnection:
+    config:
+      type: Kafka
+      bootstrapServers: kafka:9092
+  sourceConfig:
+    config:
+      type: MessagingMetadata
+sink:
+  type: metadata-rest
+  config: {}
+workflowConfig:
+  openMetadataServerConfig:
+    hostPort: http://openmetadata:8585/api
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OM_JWT_TOKEN}

@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: kafka                       # topic offsets, consumer-group lag
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+
+  - job_name: flink                       # job uptime, checkpoints, records in/out
+    static_configs:
+      - targets: ["flink-jobmanager:9249", "flink-taskmanager:9249"]
+
+  - job_name: spark                       # Spark Connect driver
+    metrics_path: /metrics/prometheus
+    static_configs:
+      - targets: ["spark-connect:4040"]

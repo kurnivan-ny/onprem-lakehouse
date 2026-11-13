@@ -1,0 +1,84 @@
+# Data catalog: OpenMetadata (discovery, glossary, lineage, owners) + OpenSearch.   profile: catalog
+# Optional and heavy (~4-6 GB). Metadata DB lives in platform-db (database openmetadata_db).
+# Ingestion runs on demand:  make catalog-ingest   (profile catalog-ingest)
+
+x-om-env: &om-env
+  DB_DRIVER_CLASS: org.postgresql.Driver
+  DB_SCHEME: postgresql
+  DB_HOST: platform-db
+  DB_PORT: "5432"
+  OM_DATABASE: openmetadata_db
+  DB_USER: openmetadata_user
+  DB_USER_PASSWORD: ${OM_DB_PASSWORD}
+  SEARCH_TYPE: opensearch
+  ELASTICSEARCH_HOST: opensearch
+  ELASTICSEARCH_PORT: "9200"
+  ELASTICSEARCH_SCHEME: http
+  OPENMETADATA_HEAP_OPTS: -Xmx1G -Xms1G
+
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.19.1
+    profiles: [catalog]
+    environment:
+      discovery.type: single-node
+      plugins.security.disabled: "true"
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_ADMIN_PASSWORD}
+      OPENSEARCH_JAVA_OPTS: -Xms1g -Xmx1g
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health >/dev/null"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+    restart: unless-stopped
+
+  openmetadata-migrate:
+    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION}
+    profiles: [catalog]
+    command: ["./bootstrap/openmetadata-ops.sh", "migrate"]
+    environment: *om-env
+    depends_on:
+      platform-db:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    restart: "no"
+
+  openmetadata:
+    image: docker.getcollate.io/openmetadata/server:${OPENMETADATA_VERSION}
+    profiles: [catalog]
+    environment: *om-env
+    ports:
+      - "8585:8585"   # UI + API
+      - "8586:8586"   # admin / health
+    depends_on:
+      openmetadata-migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # On-demand metadata ingestion (Trino/Iceberg tables, Kafka topics, Superset dashboards, source DB).
+  openmetadata-ingest:
+    image: docker.getcollate.io/openmetadata/ingestion:${OPENMETADATA_VERSION}
+    profiles: [catalog-ingest]
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+        for f in /ingestion/*.yaml; do
+          echo "== ingest $$f"; metadata ingest -c "$$f" || echo "!! $$f failed (is that profile running?)"
+        done
+    environment:
+      OM_JWT_TOKEN: ${OM_JWT_TOKEN}
+      SUPERSET_ADMIN_USER: ${SUPERSET_ADMIN_USER}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD}
+      PG_DB: ${PG_DB}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+    volumes:
+      - ./config/openmetadata/ingestion:/ingestion:ro
+    restart: "no"
+
+volumes:
+  opensearch-data:

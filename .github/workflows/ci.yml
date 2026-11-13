@@ -1,0 +1,44 @@
+# CI only checks and builds code - no data, credentials or runtime services leave your machines.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/setup-java@v4          # local Spark for transform tests
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest -q
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - name: Validate every profile
+        run: |
+          docker compose --profile '*' config -q
+          for p in batch event serving monitoring catalog; do docker compose --profile "$p" config -q; done
+
+  images:
+    if: github.event_name == 'push'
+    needs: [test, compose]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - name: Build all custom images
+        run: docker compose --profile batch --profile event --profile serving build

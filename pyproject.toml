@@ -1,0 +1,20 @@
+[project]
+name = "onprem-lakehouse"
+version = "0.1.0"
+description = "On-prem lakehouse: batch (Spark) + event (Flink) on Iceberg, RustFS, Lakekeeper"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["libs", "pipelines/batch", "pipelines/event/producer"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lakehouse", "jobs", "producer"]

@@ -1,0 +1,24 @@
+# Superset dashboards and charts (links them to the Trino tables they use).
+source:
+  type: superset
+  serviceName: onprem_superset
+  serviceConnection:
+    config:
+      type: Superset
+      hostPort: http://superset:8088
+      connection:
+        provider: db
+        username: ${SUPERSET_ADMIN_USER}
+        password: ${SUPERSET_ADMIN_PASSWORD}
+  sourceConfig:
+    config:
+      type: DashboardMetadata
+sink:
+  type: metadata-rest
+  config: {}
+workflowConfig:
+  openMetadataServerConfig:
+    hostPort: http://openmetadata:8585/api
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OM_JWT_TOKEN}

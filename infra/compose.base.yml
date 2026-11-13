@@ -1,0 +1,91 @@
+# Core platform - no profile, always on.
+#   rustfs          S3-compatible object storage (all Iceberg data files)
+#   platform-db     Postgres for platform metadata (Lakekeeper, Superset, OpenMetadata)
+#   lakekeeper      Iceberg REST catalog - every engine (Spark, Flink, Trino) uses it
+#   platform-init   one-shot: create bucket, bootstrap Lakekeeper, register the warehouse
+
+services:
+  rustfs:
+    image: rustfs/rustfs:latest            # pin a tag once you're happy with it
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # web console
+    volumes:
+      - rustfs-data:/data
+    restart: unless-stopped
+
+  platform-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: ${PLATFORM_DB_PASSWORD}
+      LAKEKEEPER_DB_PASSWORD: ${LAKEKEEPER_DB_PASSWORD}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD}
+      OM_DB_PASSWORD: ${OM_DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - platform-db-data:/var/lib/postgresql/data
+      - ./config/platform-db/init.sh:/docker-entrypoint-initdb.d/01_init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  lakekeeper-migrate:
+    image: quay.io/lakekeeper/catalog:latest   # pin a version once stable
+    command: ["migrate"]
+    environment: &lakekeeper-env
+      LAKEKEEPER__PG_DATABASE_URL_READ: postgresql://lakekeeper:${LAKEKEEPER_DB_PASSWORD}@platform-db:5432/lakekeeper
+      LAKEKEEPER__PG_DATABASE_URL_WRITE: postgresql://lakekeeper:${LAKEKEEPER_DB_PASSWORD}@platform-db:5432/lakekeeper
+      LAKEKEEPER__PG_ENCRYPTION_KEY: ${LAKEKEEPER_ENCRYPTION_KEY}
+      LAKEKEEPER__BASE_URI: http://lakekeeper:8181
+      LAKEKEEPER__ENABLE_DEFAULT_PROJECT: "true"
+      RUST_LOG: info
+    depends_on:
+      platform-db:
+        condition: service_healthy
+    restart: "no"
+
+  lakekeeper:
+    image: quay.io/lakekeeper/catalog:latest
+    command: ["serve"]
+    environment: *lakekeeper-env
+    ports:
+      - "8181:8181"   # REST catalog + UI (http://localhost:8181/ui)
+    depends_on:
+      lakekeeper-migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  platform-init:
+    build:
+      context: ..
+      dockerfile: infra/images/platform-init/Dockerfile
+    image: onprem-lakehouse/platform-init:local
+    environment:
+      S3_ENDPOINT: http://rustfs:9000
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      LAKE_BUCKET: ${LAKE_BUCKET}
+      ICEBERG_WAREHOUSE: ${ICEBERG_WAREHOUSE}
+      LAKEKEEPER_URL: http://lakekeeper:8181
+    depends_on:
+      rustfs:
+        condition: service_started
+      lakekeeper:
+        condition: service_started
+    restart: "no"
+
+volumes:
+  rustfs-data:
+  platform-db-data:

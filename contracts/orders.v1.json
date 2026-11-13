@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "orders.v1",
+  "title": "Order lifecycle event v1",
+  "description": "Topic orders.events, key = order_id. Enforced by the Flink job (pipelines/event/flink-jobs/orders_pipeline.sql) - invalid events go to orders.dlq. Change both together.",
+  "type": "object",
+  "required": ["event_id", "event_type", "event_ts", "order_id", "customer_id", "country", "amount"],
+  "properties": {
+    "event_id":       {"type": "string", "description": "UUID, unique per event (dedup key)"},
+    "event_type":     {"type": "string", "enum": ["order_created", "order_paid", "order_shipped", "order_cancelled"]},
+    "event_ts":       {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$", "description": "UTC, millisecond precision, e.g. 2026-11-13T02:15:30.123Z"},
+    "order_id":       {"type": "string"},
+    "customer_id":    {"type": "integer"},
+    "country":        {"type": "string", "minLength": 2, "maxLength": 2},
+    "payment_method": {"type": "string"},
+    "amount":         {"type": "number", "minimum": 0},
+    "currency":       {"type": "string"},
+    "schema_version": {"type": "integer", "const": 1}
+  }
+}

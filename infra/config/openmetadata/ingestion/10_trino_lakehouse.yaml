@@ -1,0 +1,23 @@
+# All Iceberg tables (bronze/silver/gold, batch + event) through Trino's "lakehouse" catalog.
+source:
+  type: trino
+  serviceName: onprem_lakehouse_trino
+  serviceConnection:
+    config:
+      type: Trino
+      hostPort: trino:8080
+      username: openmetadata
+      catalog: lakehouse
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+      includeViews: true
+sink:
+  type: metadata-rest
+  config: {}
+workflowConfig:
+  openMetadataServerConfig:
+    hostPort: http://openmetadata:8585/api
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OM_JWT_TOKEN}

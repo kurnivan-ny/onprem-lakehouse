@@ -1,0 +1,8 @@
+# Local dev + CI. Spark tests run classic local PySpark (needs Java 17).
+pyspark==3.5.8
+numpy<2
+pandas>=2.0,<2.3
+pyarrow>=14
+jsonschema>=4.21
+pytest>=8
+ruff>=0.6

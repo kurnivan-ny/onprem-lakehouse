@@ -1,0 +1,56 @@
+{
+  "uid": "onprem-lakehouse",
+  "title": "On-prem Lakehouse",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-1h", "to": "now"},
+  "tags": ["lakehouse"],
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Scrape targets up",
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "up", "legendFormat": "{{job}} {{instance}}"}],
+      "options": {"colorMode": "background", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "fieldConfig": {"defaults": {"mappings": [{"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}]}, "overrides": []}
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Kafka consumer lag (Flink group)",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "sum by (consumergroup, topic) (kafka_consumergroup_lag)", "legendFormat": "{{consumergroup}} / {{topic}}"}]
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "Kafka messages in / sec",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "sum by (topic) (rate(kafka_topic_partition_current_offset[1m]))", "legendFormat": "{{topic}}"}]
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Flink completed vs failed checkpoints",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"refId": "A", "expr": "flink_jobmanager_job_numberOfCompletedCheckpoints", "legendFormat": "completed {{job_name}}"},
+        {"refId": "B", "expr": "flink_jobmanager_job_numberOfFailedCheckpoints", "legendFormat": "failed {{job_name}}"}
+      ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Flink records in / sec (all operators)",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "sum by (job_name) (flink_taskmanager_job_task_numRecordsInPerSecond)", "legendFormat": "{{job_name}}"}]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "JVM heap used (Flink)",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"refId": "A", "expr": "flink_jobmanager_Status_JVM_Memory_Heap_Used", "legendFormat": "jobmanager"},
+        {"refId": "B", "expr": "flink_taskmanager_Status_JVM_Memory_Heap_Used", "legendFormat": "taskmanager"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []}
+    }
+  ]
+}

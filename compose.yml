@@ -1,0 +1,26 @@
+# onprem-lakehouse - single entry point. Core platform (storage + catalog) always starts;
+# pick the rest with profiles (or use the Makefile):
+#
+#   batch       source Postgres, Spark Connect, Dagster
+#   event       Kafka, Kafka UI, Flink, event producer, Dagster
+#   serving     Trino, Superset
+#   monitoring  Prometheus, Grafana, Kafka exporter
+#   catalog     OpenMetadata (+ OpenSearch)          - optional, heavy
+#
+#   docker compose --profile batch --profile serving up -d --build
+
+name: onprem-lakehouse
+
+include:
+  - path: infra/compose.base.yml
+    env_file: .env
+  - path: infra/compose.batch.yml
+    env_file: .env
+  - path: infra/compose.event.yml
+    env_file: .env
+  - path: infra/compose.serving.yml
+    env_file: .env
+  - path: infra/compose.monitoring.yml
+    env_file: .env
+  - path: infra/compose.catalog.yml
+    env_file: .env

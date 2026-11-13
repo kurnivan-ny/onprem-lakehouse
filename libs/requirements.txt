@@ -1,0 +1,3 @@
+# Spark Connect thin client - talks to the spark-connect server (or Sail) over gRPC; no JVM needed here.
+pyspark[connect]==3.5.8
+numpy<2

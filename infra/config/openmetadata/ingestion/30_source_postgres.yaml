@@ -1,0 +1,24 @@
+# Batch source system (sales.* tables).
+source:
+  type: postgres
+  serviceName: onprem_source_postgres
+  serviceConnection:
+    config:
+      type: Postgres
+      hostPort: source-db:5432
+      username: ${PG_USER}
+      authType:
+        password: ${PG_PASSWORD}
+      database: ${PG_DB}
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+sink:
+  type: metadata-rest
+  config: {}
+workflowConfig:
+  openMetadataServerConfig:
+    hostPort: http://openmetadata:8585/api
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OM_JWT_TOKEN}

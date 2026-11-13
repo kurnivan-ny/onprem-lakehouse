@@ -1,0 +1,71 @@
+# Batch: source Postgres -> Spark (via Spark Connect) -> Iceberg bronze/silver/gold.   profile: batch
+# Dagster orchestrates both batch and event maintenance, so it runs with either profile.
+
+services:
+  source-db:
+    image: postgres:16-alpine
+    profiles: [batch]
+    environment:
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - source-db-data:/var/lib/postgresql/data
+      - ../pipelines/batch/sql/init_oltp.sql:/docker-entrypoint-initdb.d/01_init_oltp.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  spark-connect:
+    profiles: [batch]
+    build:
+      context: ..
+      dockerfile: infra/images/spark/Dockerfile
+    image: onprem-lakehouse/spark:local
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      ICEBERG_WAREHOUSE: ${ICEBERG_WAREHOUSE}
+      SPARK_DRIVER_MEMORY: ${SPARK_DRIVER_MEMORY:-2g}
+      AWS_REGION: us-east-1
+    ports:
+      - "15002:15002"   # Spark Connect (sc://localhost:15002)
+      - "4040:4040"     # Spark UI
+    depends_on:
+      platform-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  dagster:
+    profiles: [batch, event]
+    build:
+      context: ..
+      dockerfile: pipelines/batch/Dockerfile
+    image: onprem-lakehouse/dagster:local
+    environment:
+      SPARK_REMOTE: sc://spark-connect:15002
+      ICEBERG_CATALOG: lakehouse
+      PG_HOST: source-db
+      PG_PORT: "5432"
+      PG_DB: ${PG_DB}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      FLINK_REST_URL: http://flink-jobmanager:8081
+      FLINK_JOB_NAME: orders-pipeline
+    ports:
+      - "3000:3000"   # Dagster UI
+    volumes:
+      - dagster-home:/opt/dagster/home
+    depends_on:
+      platform-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  source-db-data:
+  dagster-home:

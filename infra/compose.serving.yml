@@ -1,0 +1,51 @@
+# Serving: Trino (SQL over every Iceberg table) + Superset (dashboards on Trino).   profile: serving
+services:
+  trino:
+    image: trinodb/trino:476
+    profiles: [serving]
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      ICEBERG_WAREHOUSE: ${ICEBERG_WAREHOUSE}
+      PG_DB: ${PG_DB}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - "8090:8080"   # Trino UI / JDBC (host port 8090; 8080 is Kafka UI)
+    volumes:
+      - ./config/trino/config.properties:/etc/trino/config.properties:ro
+      - ./config/trino/jvm.config:/etc/trino/jvm.config:ro
+      - ./config/trino/catalog:/etc/trino/catalog:ro
+    depends_on:
+      platform-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  superset-init:
+    profiles: [serving]
+    build: &superset-build
+      context: ..
+      dockerfile: infra/images/superset/Dockerfile
+    image: onprem-lakehouse/superset:local
+    environment: &superset-env
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD}
+      SUPERSET_ADMIN_USER: ${SUPERSET_ADMIN_USER}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD}
+    command: ["/app/init-lakehouse.sh"]
+    depends_on:
+      platform-db:
+        condition: service_healthy
+    restart: "no"
+
+  superset:
+    profiles: [serving]
+    build: *superset-build
+    image: onprem-lakehouse/superset:local
+    environment: *superset-env
+    ports:
+      - "8088:8088"
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    restart: unless-stopped

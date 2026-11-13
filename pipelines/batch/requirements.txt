@@ -1,0 +1,4 @@
+dagster>=1.9,<2
+dagster-webserver>=1.9,<2
+SQLAlchemy>=2.0          # simulate_changes only
+psycopg[binary]>=3.1
